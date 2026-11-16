@@ -82,8 +82,21 @@ def reminders():
     return "Раздел Напоминания (скоро)"
 
 @app.route("/notes")
+@app.route("/notes", methods=["GET", "POST"])
 def notes():
-    return "Раздел Заметки (скоро)"
+    if request.method == "POST":
+        content = request.form.get("content")
+        if content:
+            db.execute("INSERT INTO notes (content) VALUES (?)", content)
+        return redirect("/notes")
+
+    notes_list = db.execute("SELECT * FROM notes ORDER BY created_at DESC")
+    return render_template("notes.html", notes=notes_list)
+
+@app.route("/notes/delete/<int:note_id>")
+def delete_note(note_id):
+    db.execute("DELETE FROM notes WHERE id = ?", note_id)
+    return redirect("/notes")
 
 @app.route("/family")
 def family():
