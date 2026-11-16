@@ -6,11 +6,11 @@
         background: white;
         border-radius: 16px;
         padding: 16px;
-        margin-bottom: 12px;
-        box-shadow: 0 2px 6px rgba(0,0,0,0.04);
+        margin-bottom: 14px;
+        box-shadow: 0 2px 8px rgba(0,0,0,0.04);
     }
     .member strong {
-        font-size: 17px;
+        font-size: 18px;
     }
     .relation {
         color: #7A6A58;
@@ -20,27 +20,22 @@
     .notes {
         margin-top: 8px;
         font-size: 15px;
+        color: #555;
     }
-    input, textarea {
-        width: 100%;
-        padding: 13px;
-        border-radius: 12px;
-        border: 1px solid #ddd;
-        font-size: 16px;
-        margin-bottom: 10px;
+    .actions {
+        margin-top: 14px;
+        display: flex;
+        gap: 8px;
     }
-    textarea {
-        height: 70px;
-        resize: none;
-    }
-    button {
-        width: 100%;
-        padding: 14px;
-        border-radius: 12px;
-        background: #C4A574;
-        color: white;
-        border: none;
-        font-weight: 600;
+    .actions a {
+        flex: 1;
+        text-align: center;
+        background: #F7F3ED;
+        padding: 10px;
+        border-radius: 10px;
+        font-size: 14px;
+        color: #3E3226;
+        font-weight: 500;
     }
     .delete {
         float: right;
@@ -49,17 +44,15 @@
     }
 </style>
 
-<p><a href="/">← Назад</a></p>
+<a class="back" href="/">← Назад</a>
 <h2>Семья</h2>
 
-<form action="/family" method="post">
+<form action="/family" method="post" style="margin-bottom: 24px;">
     <input type="text" name="name" placeholder="Имя" required>
-    <input type="text" name="relation" placeholder="Кем приходится (мама, сестра, друг...)">
-    <textarea name="notes" placeholder="Что важно помнить о человеке"></textarea>
+    <input type="text" name="relation" placeholder="Кем приходится">
+    <textarea name="notes" placeholder="Что важно помнить о человеке" style="height: 70px;"></textarea>
     <button type="submit">Добавить</button>
 </form>
-
-<br>
 
 {% for m in members %}
     <div class="member">
@@ -69,8 +62,13 @@
         {% if m.notes %}
             <div class="notes">{{ m.notes }}</div>
         {% endif %}
+
+        <div class="actions">
+            <a href="/family/suggest/{{ m.id }}?type=message">Что написать</a>
+            <a href="/family/suggest/{{ m.id }}?type=gift">Что подарить</a>
+        </div>
     </div>
 {% else %}
-    <p style="color:#999; text-align:center; margin-top:30px;">Пока никого нет</p>
+    <p style="color:#999; text-align:center; margin-top:40px;">Пока никого нет</p>
 {% endfor %}
 {% endblock %}
