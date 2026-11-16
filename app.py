@@ -53,13 +53,31 @@ init_db()
 def index():
     return render_template("index.html")
 
-@app.route("/chat", methods=["GET", "POST"])
-def chat():
-    if "chat_history" not in session:
-        session["chat_history"] = [
-            {"role": "assistant", "content": "Привет! Я Бибинтосик. Я рядом. Расскажи, что у тебя на душе?"}
-        ]
+@app.route("/reminders", methods=["GET", "POST"])
+def reminders():
+    if request.method == "POST":
+        title = request.form.get("title")
+        remind_at = request.form.get("remind_at")
 
+        if title:
+            db.execute(
+                "INSERT INTO reminders (title, remind_at) VALUES (?, ?)",
+                title, remind_at
+            )
+        return redirect("/reminders")
+
+    reminders_list = db.execute("SELECT * FROM reminders WHERE is_done = 0 ORDER BY id DESC")
+    return render_template("reminders.html", reminders=reminders_list)
+
+@app.route("/reminders/done/<int:reminder_id>")
+def done_reminder(reminder_id):
+    db.execute("UPDATE reminders SET is_done = 1 WHERE id = ?", reminder_id)
+    return redirect("/reminders")
+
+@app.route("/reminders/delete/<int:reminder_id>")
+def delete_reminder(reminder_id):
+    db.execute("DELETE FROM reminders WHERE id = ?", reminder_id)
+    return redirect("/reminders")
     if request.method == "POST":
         user_message = request.form.get("message")
         if user_message:
