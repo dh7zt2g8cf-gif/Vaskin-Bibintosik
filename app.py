@@ -99,8 +99,27 @@ def delete_note(note_id):
     return redirect("/notes")
 
 @app.route("/family")
+@app.route("/family", methods=["GET", "POST"])
 def family():
-    return "Раздел Семья (скоро)"
+    if request.method == "POST":
+        name = request.form.get("name")
+        relation = request.form.get("relation")
+        notes = request.form.get("notes")
+
+        if name:
+            db.execute(
+                "INSERT INTO family (name, relation, notes) VALUES (?, ?, ?)",
+                name, relation, notes
+            )
+        return redirect("/family")
+
+    members = db.execute("SELECT * FROM family ORDER BY id DESC")
+    return render_template("family.html", members=members)
+
+@app.route("/family/delete/<int:member_id>")
+def delete_family(member_id):
+    db.execute("DELETE FROM family WHERE id = ?", member_id)
+    return redirect("/family")
 
 @app.route("/tasks")
 def tasks():
