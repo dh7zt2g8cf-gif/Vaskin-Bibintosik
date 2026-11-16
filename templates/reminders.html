@@ -1,0 +1,64 @@
+{% extends "layout.html" %}
+
+{% block body %}
+<style>
+    .reminder {
+        background: white;
+        border-radius: 16px;
+        padding: 16px;
+        margin-bottom: 12px;
+        box-shadow: 0 2px 6px rgba(0,0,0,0.04);
+    }
+    input {
+        width: 100%;
+        padding: 13px;
+        border-radius: 12px;
+        border: 1px solid #ddd;
+        font-size: 16px;
+        margin-bottom: 10px;
+    }
+    button {
+        width: 100%;
+        padding: 14px;
+        border-radius: 12px;
+        background: #C4A574;
+        color: white;
+        border: none;
+        font-weight: 600;
+    }
+    .actions {
+        margin-top: 10px;
+        font-size: 14px;
+    }
+    .actions a {
+        margin-right: 14px;
+        color: #C4A574;
+    }
+</style>
+
+<p><a href="/">← Назад</a></p>
+<h2>Напоминания</h2>
+
+<form action="/reminders" method="post">
+    <input type="text" name="title" placeholder="О чём напомнить?" required>
+    <input type="text" name="remind_at" placeholder="Когда? (например: завтра вечером)">
+    <button type="submit">Добавить</button>
+</form>
+
+<br>
+
+{% for r in reminders %}
+    <div class="reminder">
+        <strong>{{ r.title }}</strong>
+        {% if r.remind_at %}
+            <div style="color:#7A6A58; font-size:14px; margin-top:4px;">{{ r.remind_at }}</div>
+        {% endif %}
+        <div class="actions">
+            <a href="/reminders/done/{{ r.id }}">выполнено</a>
+            <a href="/reminders/delete/{{ r.id }}">удалить</a>
+        </div>
+    </div>
+{% else %}
+    <p style="color:#999; text-align:center; margin-top:30px;">Напоминаний пока нет</p>
+{% endfor %}
+{% endblock %}
