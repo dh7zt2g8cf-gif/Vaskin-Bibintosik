@@ -167,5 +167,23 @@ def delete_family(member_id):
     return redirect("/family")
 
 @app.route("/tasks")
+@app.route("/tasks", methods=["GET", "POST"])
 def tasks():
-    return "Раздел Задачи (скоро)"
+    if request.method == "POST":
+        title = request.form.get("title")
+        if title:
+            db.execute("INSERT INTO tasks (title) VALUES (?)", title)
+        return redirect("/tasks")
+
+    tasks_list = db.execute("SELECT * FROM tasks ORDER BY is_done ASC, id DESC")
+    return render_template("tasks.html", tasks=tasks_list)
+
+@app.route("/tasks/done/<int:task_id>")
+def done_task(task_id):
+    db.execute("UPDATE tasks SET is_done = 1 WHERE id = ?", task_id)
+    return redirect("/tasks")
+
+@app.route("/tasks/delete/<int:task_id>")
+def delete_task(task_id):
+    db.execute("DELETE FROM tasks WHERE id = ?", task_id)
+    return redirect("/tasks")
