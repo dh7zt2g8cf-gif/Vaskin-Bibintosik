@@ -187,3 +187,31 @@ def done_task(task_id):
 def delete_task(task_id):
     db.execute("DELETE FROM tasks WHERE id = ?", task_id)
     return redirect("/tasks")
+    @app.route("/family/suggest/<int:member_id>")
+def family_suggest(member_id):
+    member = db.execute("SELECT * FROM family WHERE id = ?", member_id)
+    if len(member) != 1:
+        return redirect("/family")
+
+    member = member[0]
+    suggest_type = request.args.get("type", "message")
+
+    if suggest_type == "gift":
+        ideas = [
+            f"Можно подарить {member['name']} что-то уютное — плед или красивую кружку.",
+            f"Хороший вариант для {member['name']} — небольшая вкусная посылка или чай.",
+            f"Для {member['name']} подойдёт персональный подарок с тёплыми словами.",
+            f"Можно подарить {member['name']} что-то связанное с его интересами."
+        ]
+    else:
+        ideas = [
+            f"Напиши {member['name']}: «Привет! Просто хотел(а) сказать, что ты мне важен(на).»",
+            f"Можно написать {member['name']}: «Как ты? Давно не общались, соскучился(ась).»",
+            f"Тёплый вариант для {member['name']}: «Спасибо, что ты есть. Это много значит.»",
+            f"Простое сообщение: «Привет! Как твои дела? Расскажи, что нового.»"
+        ]
+
+    import random
+    suggestion = random.choice(ideas)
+
+    return render_template("suggest.html", member=member, suggestion=suggestion, suggest_type=suggest_type)
