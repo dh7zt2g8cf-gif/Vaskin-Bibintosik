@@ -1,0 +1,15 @@
+{% extends "layout.html" %}
+
+{% block body %}
+<h2>Чат с Бибинтосиком</h2>
+<p><a href="/">← Назад</a></p>
+
+<div id="chat-box" style="background:white; border-radius:16px; padding:16px; min-height:300px; margin-bottom:16px;">
+    <p><strong>Бибинтосик:</strong> Привет! Я рядом. Расскажи, что у тебя на душе?</p>
+</div>
+
+<form action="/chat" method="post" style="display:flex; gap:8px;">
+    <input type="text" name="message" placeholder="Напиши мне..." required style="flex:1; padding:14px; border-radius:12px; border:1px solid #ddd;">
+    <button type="submit" style="padding:14px 18px; border-radius:12px; background:#C4A574; color:white; border:none;">Отправить</button>
+</form>
+{% endblock %}
