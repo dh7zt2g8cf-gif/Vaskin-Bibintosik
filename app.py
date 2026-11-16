@@ -48,11 +48,14 @@ def init_db():
     """)
 
 init_db()
-
-@app.route("/")
-def index():
-    return render_template("index.html")
-
+    db.execute("""
+        CREATE TABLE IF NOT EXISTS tasks (
+            id INTEGER PRIMARY KEY AUTOINCREMENT,
+            title TEXT NOT NULL,
+            is_done INTEGER DEFAULT 0,
+            created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
+        )
+    """)
 @app.route("/reminders", methods=["GET", "POST"])
 def reminders():
     if request.method == "POST":
