@@ -1,0 +1,21 @@
+{% extends "layout.html" %}
+
+{% block body %}
+<a class="back" href="/family">← Назад к семье</a>
+
+<h2>
+    {% if suggest_type == 'gift' %}
+        Идея подарка
+    {% else %}
+        Что написать
+    {% endif %}
+</h2>
+
+<div class="card" style="margin-top: 20px; font-size: 17px; line-height: 1.5;">
+    <strong>{{ member.name }}</strong>
+    <p style="margin-top: 12px;">{{ suggestion }}</p>
+</div>
+
+<br>
+<a href="/family/suggest/{{ member.id }}?type={{ suggest_type }}" class="btn">Другая идея</a>
+{% endblock %}
