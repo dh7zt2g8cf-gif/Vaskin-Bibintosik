@@ -77,27 +77,75 @@ def done_reminder(reminder_id):
     db.execute("UPDATE reminders SET is_done = 1 WHERE id = ?", reminder_id)
     return redirect("/reminders")
 
-@app.route("/reminders/delete/<int:reminder_id>")
-def delete_reminder(reminder_id):
-    db.execute("DELETE FROM reminders WHERE id = ?", reminder_id)
-    return redirect("/reminders")
+@app.route("/chat", methods=["GET", "POST"])
+def chat():
+    if "chat_history" not in session:
+        session["chat_history"] = [
+            {"role": "assistant", "content": "Привет! Я Бибинтосик. Я рядом с тобой. Расскажи, как ты себя чувствуешь?"}
+        ]
+    
+    if "dont_understand_count" not in session:
+        session["dont_understand_count"] = 0
+
     if request.method == "POST":
-        user_message = request.form.get("message")
+        user_message = request.form.get("message", "").strip()
         if user_message:
             session["chat_history"].append({"role": "user", "content": user_message})
 
-            # Пока простые ответы. Потом подключим нормальный ИИ
-            reply = "Я тебя услышал. Расскажи чуть подробнее, хорошо?"
-            if "привет" in user_message.lower():
-                reply = "Привет-привет! Рад тебя видеть!"
-            elif "как дела" in user_message.lower():
-                reply = "У меня всё хорошо, особенно когда мы общаемся. А у тебя как?"
+            text = user_message.lower()
+
+            # --- Злые сообщения ---
+            if any(word in text for word in ["дурак", "идиот", "тупой", "ненавижу", "убить", "сдохни", "мразь", "тварь", "гандон", "хуй", "пидор", "еблан"]):
+                reply = "иди нахуй скатина"
+
+            # --- Не понимают ---
+            elif any(word in text for word in ["не понимаю", "непонятно", "не понял", "не поняла", "что ты несёшь", "ааа не понял"]):
+                session["dont_understand_count"] += 1
+                if session["dont_understand_count"] >= 2:
+                    # Определяем род (грубо)
+                    if any(w in text for w in ["поняла", "я не поняла"]):
+                        reply = "выкинь телефон свой уебок безмозглая"
+                    else:
+                        reply = "выкинь телефон свой уебок безмозглый"
+                    session["dont_understand_count"] = 0
+                else:
+                    reply = "Кажется, я объясняю не очень понятно. Давай попробуем по-другому. Что именно тебе неясно?"
+
+            # --- Обычные добрые ответы ---
+            elif any(word in text for word in ["привет", "здравствуй", "добрый", "хии", "хай"]):
+                reply = "Привет-привет! Рад тебя видеть. Как у тебя дела?"
             
+            elif any(word in text for word in ["как дела", "как ты", "как жизнь", "что нового"]):
+                reply = "У меня всё хорошо, особенно когда мы общаемся. А у тебя как настроение?"
+            
+            elif any(word in text for word in ["плохо", "грустно", "устала", "усталь", "тяжело", "тоска"]):
+                reply = "Мне жаль, что тебе сейчас нелегко. Ты не одна. Хочешь рассказать, что случилось? Я рядом."
+            
+            elif any(word in text for word in ["хорошо", "отлично", "нормально", "супер", "класс"]):
+                reply = "Как здорово! Мне приятно это слышать. Расскажи, что хорошего произошло?"
+            
+            elif any(word in text for word in ["спасибо", "благодарю"]):
+                reply = "Всегда пожалуйста. Я для этого и здесь."
+            
+            elif any(word in text for word in ["что делать", "не знаю", "помоги", "подскажи"]):
+                reply = "Давай разберёмся вместе. Расскажи чуть подробнее, что именно тебя беспокоит?"
+            
+            elif any(word in text for word in ["люблю тебя", "ты милый", "ты хороший"]):
+                reply = "Ой, как приятно... Я тоже тебя очень ценю. Ты важный для меня человек."
+            
+            elif any(word in text for word in ["пока", "до свидания", "спокойной"]):
+                reply = "Хорошо. Береги себя. Я всегда здесь, когда понадоблюсь. Обнимаю."
+            
+            elif any(word in text for word in ["скучно", "нечего делать"]):
+                reply = "Тогда давай что-нибудь придумаем. Хочешь, подскажу занятие или просто поболтаем?"
+            
+            else:
+                reply = "Я тебя внимательно слушаю. Расскажи ещё немного, хорошо? Мне важно понять тебя."
+
             session["chat_history"].append({"role": "assistant", "content": reply})
             session.modified = True
 
-    return render_template("chat.html", messages=session["chat_history"])
-
+    return render_template("chat.html", messages=session.get("chat_history", []))
 @app.route("/reminders")
 def reminders():
     @app.route("/reminders", methods=["GET", "POST"])
